@@ -27,6 +27,9 @@ const rules = {
           { var: "resource.newData.created_at" },
         ],
       },
+      {
+        "==": [{ var: "resource.newData.likes" }, 0],
+      },
     ],
   },
   "allow update": {

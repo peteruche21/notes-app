@@ -27,6 +27,15 @@ const auth = router({
     };
   }),
 
+  authVerified: publicProcedure
+    .input(z.string().length(42).optional())
+    .query(({ ctx, input }) => {
+      if (input && ctx.session.siwe?.address === input) {
+        return { ok: true };
+      }
+      return { ok: false };
+    }),
+
   authVerify: publicProcedure
     .input(
       z.object({
@@ -47,6 +56,14 @@ const auth = router({
           type: z.literal("Personal signature").optional(),
         }),
         signature: z.string(),
+        opts: z.object({
+          identity: z.object({
+            privateKey: z.string(),
+            publicKey: z.string(),
+            address: z.string(),
+          }),
+          tx: z.instanceof(Object),
+        }),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -64,11 +81,13 @@ const auth = router({
         // adds users siwe details to session
         ctx.session.siwe = fields;
         // persist user weave identity
-        const { identity } = await ctx.DB.createTempAddress(fields.address);
+        const { identity, tx } = input.opts;
+
         // adds users weavedb details to session
         ctx.session.weavedbUser = {
           wallet: fields.address,
-          identity,
+          identity: identity,
+          tx,
         };
         // sets users linked address in session
         ctx.session.weavedbUser.identity.linked_address = fields.address;
@@ -102,5 +121,5 @@ const auth = router({
 });
 
 export const authRouter = router({
-  auth: auth,
+  auth,
 });

@@ -40,7 +40,7 @@ interface CreateContextOptions extends Partial<CreateNextContextOptions> {
  *
  * @see https://create.t3.gg/en/usage/trpc#-servertrpccontextts
  */
-const createInnerTRPCContext = async (_opts: CreateContextOptions) => {
+export const createInnerTRPCContext = async (_opts: CreateContextOptions) => {
   const { _db: DB } = await db();
   return {
     ..._opts,

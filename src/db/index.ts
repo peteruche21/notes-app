@@ -1,53 +1,57 @@
-import { existsSync, readFileSync } from "fs";
-import path from "path";
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import type { JWKInterface } from "arweave/node/lib/wallet";
 import type { WeaveDB, WeaveDBInstance } from "../../additional";
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-unsafe-assignment
 const SDK: WeaveDB = require("weavedb-sdk");
 
-const db = async (): Promise<{
+interface IContractTx {
+  contractTxId: string;
+  srcTxId: string;
+}
+
+const run = () => {
+  const WEAVEDB_CONTRACT_TXID: IContractTx = require("../weavedb/.wallets/contract-tx.json");
+
+  const ADMIN_ARWEAVE_WALLET: JWKInterface = require("../weavedb/.wallets/admin-wallet.json");
+
+  function getContractTxId() {
+    if (WEAVEDB_CONTRACT_TXID) {
+      return WEAVEDB_CONTRACT_TXID.contractTxId;
+    }
+    return process.env.CONTRACT_TX_ID as string;
+  }
+
+  async function initialize(db: WeaveDBInstance) {
+    if (ADMIN_ARWEAVE_WALLET) {
+      db.initialize({
+        wallet: ADMIN_ARWEAVE_WALLET,
+      });
+    } else {
+      await db.initializeWithoutWallet();
+    }
+  }
+
+  return { getContractTxId, initialize };
+};
+
+const db = async (
+  contractTxId?: string
+): Promise<{
   _db: WeaveDBInstance;
   contractTxId: string;
 }> => {
-  const WEAVEDB_CONTRACT_TXID = path.resolve(
-    __dirname,
-    "../weavedb/.wallets/contract-tx.json"
-  );
-  const ADMIN_ARWEAVE_WALLET = path.resolve(
-    __dirname,
-    "../weavedb/.wallets/admin-wallet.json"
-  );
+  const { getContractTxId, initialize } = run();
 
-  let contractTxId: string;
-
-  if (existsSync(WEAVEDB_CONTRACT_TXID)) {
-    console.log("src_contract_tx_id detected");
-    contractTxId = (
-      JSON.parse(readFileSync(WEAVEDB_CONTRACT_TXID, "utf8")) as {
-        contractTxId: string;
-      }
-    ).contractTxId;
-  } else {
-    contractTxId = process.env.CONTRACT_TX_ID as string;
-    console.log("src_contract_tx_id not detected");
+  if (!contractTxId) {
+    contractTxId = getContractTxId();
   }
 
   const _db = new SDK({
     contractTxId,
   });
 
-  if (existsSync(ADMIN_ARWEAVE_WALLET)) {
-    _db.initialize({
-      wallet: JSON.parse(
-        readFileSync(ADMIN_ARWEAVE_WALLET, "utf8")
-      ) as JWKInterface,
-    });
-    console.log("initialized sdk with admin wallet...");
-  } else {
-    await _db.initializeWithoutWallet();
-    console.log("skipping initialization...");
-  }
+  await initialize(_db);
 
   return { _db, contractTxId };
 };
