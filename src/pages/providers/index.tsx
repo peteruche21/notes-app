@@ -6,6 +6,7 @@ import "@rainbow-me/rainbowkit/styles.css";
 
 import { api } from "../../utils/api";
 
+import type { AuthenticationStatus } from "@rainbow-me/rainbowkit";
 import {
   createAuthenticationAdapter,
   RainbowKitAuthenticationProvider,
@@ -18,7 +19,6 @@ import { configureChains, createClient, useAccount, WagmiConfig } from "wagmi";
 import { mainnet, polygon, optimism, arbitrum } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 import { SiweMessage } from "siwe";
-import db from "../../db";
 import NavBar from "../../components/Nav";
 
 const { chains, provider } = configureChains(
@@ -38,16 +38,7 @@ const wagmiClient = createClient({
 });
 
 const RootProvider = ({ children }: PropsWithChildren) => {
-  const [state, setState] = useState<{
-    AUTHENTICATION_STATUS: "loading" | "authenticated" | "unauthenticated";
-    nonce?: {
-      expirationTime?: string;
-      issuedAt?: string;
-      nonce?: string;
-    };
-  }>({
-    AUTHENTICATION_STATUS: "unauthenticated",
-  });
+  const [authStatus, setAuthStatus] = useState<AuthenticationStatus>("loading");
 
   const router = useRouter();
 
@@ -63,9 +54,12 @@ const RootProvider = ({ children }: PropsWithChildren) => {
 
   const authVerify = api.auth.authVerify.useMutation();
 
-  const authVerified = api.auth.authVerified.useQuery(address, {
-    enabled: false,
-  });
+  const authVerified = api.auth.authVerified.useQuery(address);
+
+  const redirect = () => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    if (router.pathname == "/login") router.push("/");
+  };
 
   const authenticationAdapter = createAuthenticationAdapter({
     getNonce: async () => {
@@ -90,37 +84,35 @@ const RootProvider = ({ children }: PropsWithChildren) => {
     },
 
     verify: async ({ message, signature }) => {
-      const { _db: DB } = await db(process.env.NEXT_PUBLIC_CONTRACT_TX_ID);
-      const opts = await DB.createTempAddress(message.address);
-
       const result = await authVerify.mutateAsync({
         message,
         signature,
-        opts: opts,
       });
 
-      return Boolean(result.ok);
+      const authenticated = Boolean(result.ok);
+
+      if (authenticated) {
+        setAuthStatus(authenticated ? "authenticated" : "unauthenticated");
+        redirect();
+      }
+
+      return authenticated;
     },
 
     signOut: async () => {
       await authLogout.refetch();
-      setState((x) => ({ ...x, AUTHENTICATION_STATUS: "unauthenticated" }));
+      setAuthStatus("unauthenticated");
     },
   });
 
-  const isAuthenticated = async () => {
-    await authVerified.refetch();
-
-    if (!isConnected || !authVerified.data) return;
-
-    if (authVerified?.data?.ok) {
-      setState((x) => ({ ...x, AUTHENTICATION_STATUS: "authenticated" }));
-      if (router.pathname == "/login") void router.push("/");
-    } else {
-      setState((x) => ({
-        ...x,
-        AUTHENTICATION_STATUS: "unauthenticated",
-      }));
+  const isAuthenticated = () => {
+    switch (authVerified.data && authVerified?.data?.ok && isConnected) {
+      case true:
+        if (authStatus !== "authenticated") setAuthStatus("authenticated");
+        redirect();
+        break;
+      default:
+        if (authStatus !== "unauthenticated") setAuthStatus("unauthenticated");
     }
   };
 
@@ -133,7 +125,7 @@ const RootProvider = ({ children }: PropsWithChildren) => {
     <WagmiConfig client={wagmiClient}>
       <RainbowKitAuthenticationProvider
         adapter={authenticationAdapter}
-        status={state.AUTHENTICATION_STATUS}
+        status={authStatus}
       >
         <RainbowKitProvider
           modalSize="compact"

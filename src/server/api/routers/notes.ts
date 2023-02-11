@@ -1,10 +1,21 @@
 import { z } from "zod";
 import { createTRPCRouter as router, protectedProcedure } from "../trpc";
 
+export interface ISchema {
+  body: string;
+  created_at: number;
+  likes: number;
+  note_id: string | number;
+  owner_address: string;
+  title: string;
+  updated_at: number;
+  private: boolean;
+}
+
 const notes = router({
   get: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
     try {
-      const note = await ctx.DB.get("notes", input);
+      const note = await ctx.DB.get<ISchema>("notes", input);
       return { ok: true, data: note };
     } catch (error: unknown) {
       return {
@@ -15,7 +26,10 @@ const notes = router({
   }),
   all: protectedProcedure.query(async ({ ctx }) => {
     try {
-      const allNotes = await ctx.DB.cget("notes", ["updated_at", "desc"]);
+      const allNotes = await ctx.DB.cget<ISchema>("notes", [
+        "updated_at",
+        "desc",
+      ]);
       return { ok: true, data: allNotes };
     } catch (error: unknown) {
       return {
@@ -26,7 +40,7 @@ const notes = router({
   }),
   me: protectedProcedure.query(async ({ ctx }) => {
     try {
-      const myNotes = await ctx.DB.cget(
+      const myNotes = await ctx.DB.cget<ISchema>(
         "notes",
         ["owner_address", "=", ctx.session.siwe?.address.toLowerCase()],
         ["updated_at", "desc"]
@@ -48,7 +62,6 @@ const notes = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      console.log(ctx.DB.signer());
       try {
         await ctx.DB.add(
           {
@@ -67,7 +80,9 @@ const notes = router({
             privateKey: ctx.session.weavedbUser?.identity.privateKey as string,
           }
         );
-        return { ok: true };
+        return {
+          ok: true,
+        };
       } catch (error: unknown) {
         return {
           ok: false,

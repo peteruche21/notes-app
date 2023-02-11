@@ -4,9 +4,17 @@ import type { SiweMessage } from "siwe";
 import type Wallet from "ethereumjs-wallet";
 
 interface SDKOptions {
+  name?: "weavedb" | string;
+  version?: "1" | string;
   wallet?: JWKInterface;
-  contractTxId?: string;
+  contractTxId: string;
+  rpc?: string;
   EthWallet?: Wallet;
+  arweave_wallet?: JWKInterface;
+  network?: "localhost" | "testnet" | "mainnet";
+  port?: 1820 | number;
+  secure?: boolean;
+  cert?: string | undefined;
 }
 
 interface SDKFPOptions {
@@ -23,8 +31,15 @@ interface WeaveDBIdentity {
 interface WeaveDBSignerObject {
   wallet: string;
   identity: WeaveDBIdentity;
-  tx: object;
+  tx?: object;
   err?: unknown;
+}
+
+interface WeaveDBResponseObject<T> {
+  block: { height: number; timestamp: number };
+  data: T;
+  id: string;
+  setter: string;
 }
 
 class SDK {
@@ -37,12 +52,15 @@ class SDK {
   createTempAddress(address: string): Promise<WeaveDBSignerObject>;
   ts(): number;
   signer(): string;
-  get(
+  get<Schema>(
     collection: string,
     docid?: string,
     ...opts
-  ): Promise<Record<object | ArrayLike, never>>;
-  cget(collection: string, ...opts): Promise<Record<object | ArrayLike, never>>;
+  ): Promise<WeaveDBResponseObject<Schema>[]>;
+  cget<Schema>(
+    collection: string,
+    ...opts
+  ): Promise<WeaveDBResponseObject<Schema>[]>;
   add<T>(
     data: T,
     collection: string,

@@ -3,7 +3,7 @@ import LoginButton from "../components/Login";
 
 const Login = () => {
   return (
-    <div className="flex h-screen w-screen px-4">
+    <div className="flex h-[80vh] px-4">
       <div className="card image-full m-auto w-[500px] bg-base-100 shadow-xl">
         <figure>
           <img

@@ -33,6 +33,9 @@ const NewNote: NextPage = () => {
     <div className="mockup-code mx-auto min-h-[600px] max-w-[1080px] p-5">
       <form onSubmit={handleSubmit(onSubmit)} className="max-w-md space-y-5">
         <div>
+          {errors.title && (
+            <p className="py-2 text-red-600">This field is required</p>
+          )}
           <input
             type="text"
             id="title"
@@ -40,18 +43,20 @@ const NewNote: NextPage = () => {
             className="input-bordered input w-full max-w-md"
             {...register("title", { required: true })}
           />
-          {errors.title && <p>This field is required</p>}
         </div>
         <div>
+          {errors.body && (
+            <p className="pb-2 text-red-600">This field is required</p>
+          )}
+
           <textarea
             id="body"
             placeholder="write your note here"
             className="textarea-bordered textarea textarea-lg h-[400px] w-full max-w-md"
             {...register("body", { required: true })}
           />
-          {errors.body && <p>This field is required</p>}
         </div>
-        <button type="submit" className="btn-primary btn-block btn">
+        <button type="submit" className="btn btn-primary btn-block">
           Submit
         </button>
       </form>

@@ -1,57 +1,45 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import type { JWKInterface } from "arweave/node/lib/wallet";
 import type { WeaveDB, WeaveDBInstance } from "../../additional";
+import Wallet from "ethereumjs-wallet";
+import { toBuffer } from "ethereumjs-util";
 
-const SDK: WeaveDB = require("weavedb-sdk");
+const server: WeaveDB = require("weavedb-node-client");
 
 interface IContractTx {
   contractTxId: string;
   srcTxId: string;
 }
 
-const run = () => {
-  const WEAVEDB_CONTRACT_TXID: IContractTx = require("../weavedb/.wallets/contract-tx.json");
-
-  const ADMIN_ARWEAVE_WALLET: JWKInterface = require("../weavedb/.wallets/admin-wallet.json");
-
-  function getContractTxId() {
-    if (WEAVEDB_CONTRACT_TXID) {
-      return WEAVEDB_CONTRACT_TXID.contractTxId;
-    }
-    return process.env.CONTRACT_TX_ID as string;
-  }
-
-  async function initialize(db: WeaveDBInstance) {
-    if (ADMIN_ARWEAVE_WALLET) {
-      db.initialize({
-        wallet: ADMIN_ARWEAVE_WALLET,
-      });
-    } else {
-      await db.initializeWithoutWallet();
-    }
-  }
-
-  return { getContractTxId, initialize };
-};
-
-const db = async (
+const db = (
   contractTxId?: string
-): Promise<{
+): {
   _db: WeaveDBInstance;
   contractTxId: string;
-}> => {
-  const { getContractTxId, initialize } = run();
+} => {
+  function getContractTxId() {
+    try {
+      const WEAVEDB_CONTRACT_TXID: IContractTx = require("../weavedb/.wallets/contract-tx.json");
+      console.log("server: found contract-tx.json");
+      return WEAVEDB_CONTRACT_TXID.contractTxId;
+    } catch (error: unknown) {
+      return process.env.CONTRACT_TX_ID as string;
+    }
+  }
+
+  const EthWallet = Wallet.fromPrivateKey(
+    toBuffer(process.env.ADMIN_ETH_PRIVATE_KEY)
+  );
 
   if (!contractTxId) {
     contractTxId = getContractTxId();
   }
 
-  const _db = new SDK({
+  const _db = new server({
     contractTxId,
+    rpc: "127.0.0.1:8080",
+    EthWallet,
   });
-
-  await initialize(_db);
 
   return { _db, contractTxId };
 };
