@@ -2,15 +2,26 @@ import { useRouter } from "next/router";
 import type { WeaveDBResponseObject } from "../../../additional";
 import type { ISchema } from "../../server/api/routers/notes";
 import { api } from "../../utils/api";
+import Form from "../Form";
+import Modal from "../Modal";
 
 const NoteCard = ({ data }: { data: WeaveDBResponseObject<ISchema> }) => {
   const router = useRouter();
 
   const deleteMutation = api.notes.delete.useMutation();
 
+  const updateMutation = api.notes.update.useMutation();
+
   const deleteNote = async (docid: string) => {
-    const response = await deleteMutation.mutateAsync(docid);
-    console.log(response);
+    await deleteMutation.mutateAsync(docid);
+  };
+
+  const privatizeNote = async (docid: string, isPrivate: boolean) => {
+    await updateMutation.mutateAsync({
+      data: { private: isPrivate },
+      docid,
+      privatize: true,
+    });
   };
 
   return (
@@ -38,8 +49,8 @@ const NoteCard = ({ data }: { data: WeaveDBResponseObject<ISchema> }) => {
         </div>
         <p>{data.data.body}</p>
         {router.pathname === "/me" && (
-          <div className="btn-group card-actions absolute -bottom-3 left-5 justify-start gap-0">
-            <button className="btn-sm btn">
+          <div className="card-actions btn-group absolute -bottom-3 left-5 justify-start gap-0">
+            <label className="btn btn-sm" htmlFor={data.id}>
               <svg
                 fill="currentColor"
                 className="h-5 w-5 dark:text-white "
@@ -50,9 +61,9 @@ const NoteCard = ({ data }: { data: WeaveDBResponseObject<ISchema> }) => {
                 <path d="M5.433 13.917l1.262-3.155A4 4 0 017.58 9.42l6.92-6.918a2.121 2.121 0 013 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 01-.65-.65z" />
                 <path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0010 3H4.75A2.75 2.75 0 002 5.75v9.5A2.75 2.75 0 004.75 18h9.5A2.75 2.75 0 0017 15.25V10a.75.75 0 00-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5z" />
               </svg>
-            </button>
+            </label>
             <button
-              className="btn-sm btn"
+              className="btn btn-sm"
               onClick={() => void deleteNote(data.id)}
             >
               <svg
@@ -69,7 +80,10 @@ const NoteCard = ({ data }: { data: WeaveDBResponseObject<ISchema> }) => {
                 />
               </svg>
             </button>
-            <button className="btn-sm btn">
+            <button
+              className="btn btn-sm"
+              onClick={() => void privatizeNote(data.id, !data.data.private)}
+            >
               {data.data.private ? (
                 <svg
                   fill="currentColor"
@@ -105,11 +119,11 @@ const NoteCard = ({ data }: { data: WeaveDBResponseObject<ISchema> }) => {
           </div>
         )}
 
-        <div className="btn-group card-actions absolute -bottom-3 right-5 justify-end gap-0">
-          <button className="btn-disabled btn-active btn-sm btn">
+        <div className="card-actions btn-group absolute -bottom-3 right-5 justify-end gap-0">
+          <button className="btn btn-disabled btn-active btn-sm">
             {data.data.likes}
           </button>
-          <button className="btn-sm btn">
+          <button className="btn btn-sm">
             <svg
               fill="currentColor"
               className="h-5 w-5 text-red-600"
@@ -122,6 +136,9 @@ const NoteCard = ({ data }: { data: WeaveDBResponseObject<ISchema> }) => {
           </button>
         </div>
       </div>
+      <Modal docid={data.id}>
+        <Form type="update" data={data.data} docid={data.id} />
+      </Modal>
     </div>
   );
 };

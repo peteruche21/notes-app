@@ -31,10 +31,8 @@
     "ts-node": "^10.9.1",
     "wagmi": "^0.11.5",
     "warp-contracts": "^1.2.52",
-    "weavedb-client": "^0.19.2",
     "weavedb-node-client": "^0.19.3",
     "weavedb-sdk": "^0.18.5",
-    "weavedb-sdk-node": "^0.20.1",
     "zod": "^3.20.2"
   },
   "devDependencies": {

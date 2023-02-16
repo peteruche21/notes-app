@@ -6,7 +6,7 @@ import type Wallet from "ethereumjs-wallet";
 interface SDKOptions {
   name?: "weavedb" | string;
   version?: "1" | string;
-  wallet?: JWKInterface;
+  wallet?: JWKInterface | string;
   contractTxId: string;
   rpc?: string;
   EthWallet?: Wallet;
@@ -52,6 +52,7 @@ class SDK {
   createTempAddress(address: string): Promise<WeaveDBSignerObject>;
   ts(): number;
   signer(): string;
+  getInfo(): Promise<void>;
   get<Schema>(
     collection: string,
     docid?: string,

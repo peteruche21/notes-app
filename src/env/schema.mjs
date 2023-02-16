@@ -9,6 +9,7 @@ export const serverSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]),
   CONTRACT_TX_ID: z.string(),
   ADMIN_ETH_PRIVATE_KEY: z.string(),
+  GRPC_NODE_URL: z.string()
 });
 
 /**
@@ -20,6 +21,7 @@ export const serverEnv = {
   NODE_ENV: process.env.NODE_ENV,
   CONTRACT_TX_ID: process.env.CONTRACT_TX_ID,
   ADMIN_ETH_PRIVATE_KEY: process.env.ADMIN_ETH_PRIVATE_KEY,
+  GRPC_NODE_URL: process.env.GRPC_NODE_URL
 };
 
 /**

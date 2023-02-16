@@ -1,11 +1,22 @@
 import { withIronSessionSsr } from "iron-session/next";
 import { sessionOptions } from "../lib/session";
-import type { GetServerSideProps, NextPage } from "next";
+import type {
+  GetServerSideProps,
+  InferGetServerSidePropsType,
+  NextPage,
+} from "next";
+import { createProxySSGHelpers } from "@trpc/react-query/ssg";
+import superjson from "superjson";
+
 import NoteCard from "../components/Cards/NoteCard";
 
 import { api } from "../utils/api";
+import { appRouter } from "../server/api/root";
+import { createInnerTRPCContext } from "../server/api/trpc";
 
-const HomePage: NextPage = () => {
+const HomePage: NextPage = (
+  props: InferGetServerSidePropsType<typeof getServerSideProps>
+) => {
   const allNotes = api.notes.all.useQuery();
 
   const renderList = (): JSX.Element[] | undefined => {
@@ -61,8 +72,18 @@ const HomePage: NextPage = () => {
 };
 
 export const getServerSideProps: GetServerSideProps = withIronSessionSsr(
-  function ({ req }) {
+  async function ({ req }) {
     const siwe = req.session?.siwe;
+
+    const context = createInnerTRPCContext({ session: req.session });
+
+    const ssg = createProxySSGHelpers({
+      router: appRouter,
+      ctx: context,
+      transformer: superjson,
+    });
+
+    await ssg.notes.all.prefetch();
 
     if (!siwe) {
       return {
@@ -74,7 +95,7 @@ export const getServerSideProps: GetServerSideProps = withIronSessionSsr(
     }
 
     return {
-      props: {},
+      props: { trpcState: ssg.dehydrate() },
     };
   },
   sessionOptions

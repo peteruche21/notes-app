@@ -15,7 +15,7 @@ export interface ISchema {
 const notes = router({
   get: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
     try {
-      const note = await ctx.DB.get<ISchema>("notes", input);
+      const note = await ctx.DB.get<ISchema>("notes", input, true);
       return { ok: true, data: note };
     } catch (error: unknown) {
       return {
@@ -26,10 +26,11 @@ const notes = router({
   }),
   all: protectedProcedure.query(async ({ ctx }) => {
     try {
-      const allNotes = await ctx.DB.cget<ISchema>("notes", [
-        "updated_at",
-        "desc",
-      ]);
+      const allNotes = await ctx.DB.cget<ISchema>(
+        "notes",
+        ["updated_at", "desc"],
+        true
+      );
       return { ok: true, data: allNotes };
     } catch (error: unknown) {
       return {
@@ -43,7 +44,8 @@ const notes = router({
       const myNotes = await ctx.DB.cget<ISchema>(
         "notes",
         ["owner_address", "=", ctx.session.siwe?.address.toLowerCase()],
-        ["updated_at", "desc"]
+        ["updated_at", "desc"],
+        true
       );
       return { ok: true, data: myNotes };
     } catch (error: unknown) {
@@ -99,11 +101,22 @@ const notes = router({
           private: z.boolean().default(false),
         }),
         docid: z.string(),
+        privatize: z.boolean(),
       })
     )
     .mutation(async ({ ctx, input }) => {
+      const newData = input.privatize
+        ? {
+            updated_at: ctx.DB.ts(),
+            private: input.data.private,
+          }
+        : {
+            title: input.data.title,
+            body: input.data.body,
+            updated_at: ctx.DB.ts(),
+          };
       try {
-        await ctx.DB.update(input.data, "tasks", input.docid, {
+        await ctx.DB.update(newData, "notes", input.docid, {
           wallet: ctx.session.weavedbUser?.wallet as string,
           privateKey: ctx.session.weavedbUser?.identity.privateKey as string,
         });

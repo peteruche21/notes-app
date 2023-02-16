@@ -17,13 +17,12 @@ const db = (
   _db: WeaveDBInstance;
   contractTxId: string;
 } => {
-  function getContractTxId() {
+
+  if (!contractTxId) {
     try {
-      const WEAVEDB_CONTRACT_TXID: IContractTx = require("../weavedb/.wallets/contract-tx.json");
-      console.log("server: found contract-tx.json");
-      return WEAVEDB_CONTRACT_TXID.contractTxId;
+      contractTxId = (require("../weavedb/.wallets/contract-tx.json") as IContractTx).contractTxId;
     } catch (error: unknown) {
-      return process.env.CONTRACT_TX_ID as string;
+      contractTxId = process.env.CONTRACT_TX_ID as string;
     }
   }
 
@@ -31,13 +30,9 @@ const db = (
     toBuffer(process.env.ADMIN_ETH_PRIVATE_KEY)
   );
 
-  if (!contractTxId) {
-    contractTxId = getContractTxId();
-  }
-
   const _db = new server({
     contractTxId,
-    rpc: "127.0.0.1:8080",
+    rpc: process.env.GRPC_NODE_URL || "127.0.0.1:8080",
     EthWallet,
   });
 
