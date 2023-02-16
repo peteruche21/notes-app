@@ -34,15 +34,17 @@ const HomePage: NextPage = (
 
   return (
     <div className="flex flex-col items-center">
-      <button
-        className="btn mb-10 max-w-[5rem] text-sm lowercase"
-        onClick={refresh}
-      >
-        {allNotes.isFetching && (
-          <button className="btn loading btn-square"></button>
-        )}
-        {!allNotes.isFetching && "refresh"}
-      </button>
+      {allNotes.isFetching && (
+        <button className="btn loading btn-circle mb-10 max-w-[5rem]"></button>
+      )}
+      {!allNotes.isFetching && (
+        <button
+          className="btn mb-10 max-w-[5rem] text-sm lowercase"
+          onClick={refresh}
+        >
+          refresh
+        </button>
+      )}
       <div className="columns-1 gap-5 lg:columns-2">
         {allNotes.isError ? (
           <Alert

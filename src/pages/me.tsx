@@ -20,50 +20,53 @@ const MyNotes: NextPage = (
 ) => {
   const myNotes = api.notes.me.useQuery();
 
-  const renderList = (): JSX.Element[] | undefined => {
-    return myNotes.data?.data?.map((element, index) => {
-      return <NoteCard data={element} key={index} />;
-    });
-  };
-
   const refresh = async () => {
     await myNotes.refetch();
   };
 
+  const renderList = (): JSX.Element[] | undefined => {
+    return myNotes.data?.data?.map((element, index) => {
+      return <NoteCard data={element} key={index} refresh={refresh} />;
+    });
+  };
+
   return (
     <div className="flex flex-col items-center">
-    <button
-      className="btn mb-10 max-w-[5rem] text-sm lowercase"
-      onClick={refresh}
-    >
       {myNotes.isFetching && (
-        <button className="btn loading btn-square"></button>
+        <button className="btn loading btn-circle mb-10 max-w-[5rem]"></button>
       )}
-      {!myNotes.isFetching && "refresh"}
-    </button>
-    <div className="columns-1 gap-5 lg:columns-2">
-      {myNotes.isError ? (
-        <Alert
-          status="warning"
-          message="Error! check your internet connection and try again."
-        />
-      ) : myNotes.data?.ok ? (
-        myNotes.data.data!.length > 0 ? (
-          renderList()
+      {!myNotes.isFetching && (
+        <button
+          className="btn mb-10 max-w-[5rem] text-sm lowercase"
+          onClick={refresh}
+        >
+          refresh
+        </button>
+      )}
+
+      <div className="columns-1 gap-5 lg:columns-2">
+        {myNotes.isError ? (
+          <Alert
+            status="warning"
+            message="Error! check your internet connection and try again."
+          />
+        ) : myNotes.data?.ok ? (
+          myNotes.data.data!.length > 0 ? (
+            renderList()
+          ) : (
+            <Alert
+              status="info"
+              message="No notes found! click new to create new note."
+            />
+          )
         ) : (
           <Alert
-            status="info"
-            message="No notes found! click new to create new note."
+            status="error"
+            message="Error! unable to fetch notes. try again later!"
           />
-        )
-      ) : (
-        <Alert
-          status="error"
-          message="Error! unable to fetch notes. try again later!"
-        />
-      )}
+        )}
+      </div>
     </div>
-  </div>
   );
 };
 

@@ -60,12 +60,17 @@ const Form = ({ type, docid, data }: IFormProps) => {
           id="body"
           placeholder="write your note here"
           className="textarea-bordered textarea textarea-lg h-[400px] w-full max-w-md"
-          {...register("body", { required: true, value:data?.body })}
+          {...register("body", { required: true, value: data?.body })}
         />
       </div>
-      <button type="submit" className="btn-primary btn-block btn">
-        Submit
-      </button>
+
+      {addNote.isLoading || updateNote.isLoading ? (
+        <button className="btn loading btn-primary btn-block"></button>
+      ) : (
+        <button type="submit" className="btn btn-primary btn-block">
+          Submit
+        </button>
+      )}
     </form>
   );
 };
