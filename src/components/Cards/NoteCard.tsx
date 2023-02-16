@@ -16,9 +16,9 @@ const NoteCard = ({ data }: { data: WeaveDBResponseObject<ISchema> }) => {
     await deleteMutation.mutateAsync(docid);
   };
 
-  const privatizeNote = async (docid: string, isPrivate: boolean) => {
+  const privatizeNote = async (docid: string, togglePrivacy: boolean) => {
     await updateMutation.mutateAsync({
-      data: { private: isPrivate },
+      data: { private: togglePrivacy },
       docid,
       privatize: true,
     });

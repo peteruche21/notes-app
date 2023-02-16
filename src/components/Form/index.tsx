@@ -46,10 +46,9 @@ const Form = ({ type, docid, data }: IFormProps) => {
         <input
           type="text"
           id="title"
-          value={data?.title}
           placeholder="what is the title of your note?"
           className="input-bordered input w-full max-w-md"
-          {...register("title", { required: true })}
+          {...register("title", { required: true, value: data?.title })}
         />
       </div>
       <div>
@@ -59,10 +58,9 @@ const Form = ({ type, docid, data }: IFormProps) => {
 
         <textarea
           id="body"
-          value={data?.body}
           placeholder="write your note here"
           className="textarea-bordered textarea textarea-lg h-[400px] w-full max-w-md"
-          {...register("body", { required: true })}
+          {...register("body", { required: true, value:data?.body })}
         />
       </div>
       <button type="submit" className="btn-primary btn-block btn">

@@ -8,7 +8,7 @@ const Modal: FC<PropsWithChildren<{ docid: string }>> = ({
     <div>
       <input type="checkbox" id={docid} className="modal-toggle" />
       <div className="modal">
-        <div className="modal-box relative">
+        <div className="modal-box relative pt-10">
           <label
             htmlFor={docid}
             className="btn-sm btn-circle btn absolute right-2 top-2"
