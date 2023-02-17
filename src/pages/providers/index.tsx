@@ -117,7 +117,7 @@ const RootProvider = ({ children }: PropsWithChildren) => {
   };
 
   useEffect(() => {
-    void isAuthenticated();
+    isAuthenticated();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected, authVerify.data, authVerified.data]);
 

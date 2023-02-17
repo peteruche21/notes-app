@@ -30,7 +30,7 @@ export const serverEnv = {
  * To expose them to the client, prefix them with `NEXT_PUBLIC_`.
  */
 export const clientSchema = z.object({
-  NEXT_PUBLIC_CONTRACT_TX_ID: z.string(),
+  //NEXT_PUBLIC_...: z.string(),
 });
 
 /**
@@ -40,5 +40,5 @@ export const clientSchema = z.object({
  * @type {{ [k in keyof z.input<typeof clientSchema>]: string | undefined }}
  */
 export const clientEnv = {
-  NEXT_PUBLIC_CONTRACT_TX_ID: process.env.CONTRACT_TX_ID,
+  //NEXT_PUBLIC_...: process.env.CONTRACT_TX_ID,
 };
