@@ -49,7 +49,7 @@ const HomePage: NextPage = (
         {allNotes.isError ? (
           <Alert
             status="warning"
-            message="Error! check your internet connection and try again."
+            message="Please ensure you are signed in and connected to the internet."
           />
         ) : allNotes.data?.ok ? (
           allNotes.data.data!.length > 0 ? (

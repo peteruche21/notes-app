@@ -10,8 +10,9 @@ interface IFormProps {
   data?: FormData;
   type: "new" | "update";
   docid?: string;
+  onUpdate?: () => Promise<void>;
 }
-const Form = ({ type, docid, data }: IFormProps) => {
+const Form = ({ type, docid, data, onUpdate }: IFormProps) => {
   const {
     register,
     handleSubmit,
@@ -35,7 +36,8 @@ const Form = ({ type, docid, data }: IFormProps) => {
     if (result.error) {
       console.log(result.error);
     }
-    reset();
+    reset({ title: "", body: "" });
+    if (onUpdate) await onUpdate();
   };
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="max-w-md space-y-5">
@@ -46,7 +48,7 @@ const Form = ({ type, docid, data }: IFormProps) => {
         <input
           type="text"
           id="title"
-          placeholder="what is the title of your note?"
+          placeholder="note title"
           className="input-bordered input w-full max-w-md"
           {...register("title", { required: true, value: data?.title })}
         />
@@ -58,16 +60,16 @@ const Form = ({ type, docid, data }: IFormProps) => {
 
         <textarea
           id="body"
-          placeholder="write your note here"
+          placeholder="write your thoughts here"
           className="textarea-bordered textarea textarea-lg h-[400px] w-full max-w-md"
           {...register("body", { required: true, value: data?.body })}
         />
       </div>
 
       {addNote.isLoading || updateNote.isLoading ? (
-        <button className="btn loading btn-primary btn-block"></button>
+        <button className="loading btn-primary btn-block btn"></button>
       ) : (
-        <button type="submit" className="btn btn-primary btn-block">
+        <button type="submit" className="btn-primary btn-block btn">
           Submit
         </button>
       )}

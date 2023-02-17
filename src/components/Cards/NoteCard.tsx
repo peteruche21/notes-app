@@ -174,7 +174,7 @@ const NoteCard = ({ data, refresh }: INoteCardProps) => {
         </div>
       </div>
       <Modal docid={data.id}>
-        <Form type="update" data={data.data} docid={data.id} />
+        <Form type="update" data={data.data} docid={data.id} onUpdate={refresh}/>
       </Modal>
     </div>
   );

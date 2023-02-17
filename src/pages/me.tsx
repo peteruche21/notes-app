@@ -48,8 +48,9 @@ const MyNotes: NextPage = (
         {myNotes.isError ? (
           <Alert
             status="warning"
-            message="Error! check your internet connection and try again."
+            message="Please ensure you are signed in and connected to the internet"
           />
+          
         ) : myNotes.data?.ok ? (
           myNotes.data.data!.length > 0 ? (
             renderList()

@@ -20,5 +20,8 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
+  images: {
+    domains: ["www.murdoch.edu.au"],
+  },
 };
 export default config;

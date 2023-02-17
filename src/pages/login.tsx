@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 import LoginButton from "../components/Login";
 
@@ -6,9 +7,11 @@ const Login = () => {
     <div className="flex h-[80vh] px-4">
       <div className="card image-full m-auto w-[500px] bg-base-100 shadow-xl">
         <figure>
-          <img
+          <Image
             src="https://www.murdoch.edu.au/sf-images/newsportallibrary/feature-images/note-taking-feature.jpg?sfvrsn=ff31cf5f_0"
             alt="notes"
+            fill
+            className="rounded-2xl"
           />
         </figure>
         <div className="card-body">
