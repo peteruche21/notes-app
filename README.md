@@ -1,28 +1,24 @@
-# Create T3 App
+# notes app
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+simple note taking app built on arweave blockchain using weavedb and t3 Stack (tRPC, typescript, nextjs)
 
-## What's next? How do I make an app with this?
+allows for mutable creation of notes that can be seen by everyone.
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+surports the creation of private notes that is viewed by owner only but still publicly available on the blockchain.
+with siwe and a custom rainbowkit adapter for server authentication.
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## weavedb 
+weavedb is a NoSql database built on arweave blockchain with smartweave. it functions as a smart-contract as a database allowing for decentralised apps that emulate services similar to Google firestore.
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+## siwe (see-wee)
+siwe,short for sign in with Ethereum is a JavaScript library that enables web3 authentication flows for your web apps.
 
-## Learn More
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+## rainbowkit
+rainbowkit is a wallet connect library that makes it easy to connect to multiple wallet from a react application.
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+## tRPC
+tRPC is a typesafe API framework that brings the client and server code closer without schemas or code generation. enabling you to build full stack applications with typescript.
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
-
-## How do I deploy this?
-
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+to get started
+- follow this [article](#) to learn how to use weavedb in a tRPC app.
